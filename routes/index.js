@@ -5,7 +5,7 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 
 /* GET home page. */
-router.get('/run', function(req, res) {
+router.post('/run', function(req, res) {
     var fakeData = {
         solution: {
             java: 'public class Solution{ public String sayHello(){ return "HELLO!";}}',
@@ -23,8 +23,8 @@ router.get('/run', function(req, res) {
     var folder = util.makeUniqueFolderName();
     mkdirp('programs/' + folder, function(err) {
         if (!err) {
-            fs.writeFile('programs/' + folder + '/' + 'Solution.java', fakeData.solution.java, function() {
-                fs.writeFile('programs/' + folder + '/' + 'Run.java', fakeData.run.java, function() {
+            fs.writeFile('programs/' + folder + '/' + 'Solution.java', req.body.solution.java, function() {
+                fs.writeFile('programs/' + folder + '/' + 'Run.java', req.body.run.java, function() {
                     var sys = require('sys');
                     var exec = require('child_process').exec;
 
@@ -40,7 +40,7 @@ router.get('/run', function(req, res) {
                             error: error
                         });
                     };
-                    var execString = 'sudo docker run -v /home/cesarvargas00/runAPI/programs:/data/ dockerfile/java /bin/bash execJava.sh ' + folder;
+                    var execString = 'sudo docker run -v /home/ec2-user/runAPI/programs:/data/ dockerfile/java /bin/bash execJava.sh ' + folder;
                     exec(execString, puts);
                     //run docker
                     //return object
