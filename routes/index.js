@@ -6,20 +6,6 @@ var mkdirp = require('mkdirp');
 
 /* GET home page. */
 router.post('/run', function(req, res) {
-    var fakeData = {
-        solution: {
-            java: 'public class Solution{ public String sayHello(){ return "HELLO!";}}',
-            cpp: ""
-        },
-        run: {
-            java: 'public class Run{ public static void main(String[] args) {Solution s = new Solution();System.out.println(s.sayHello());Result.run(5,4,20);}}',
-            cpp: ""
-        }
-    };
-
-
-
-
     var folder = util.makeUniqueFolderName();
     mkdirp('programs/' + folder, function(err) {
         if (!err) {
@@ -30,17 +16,22 @@ router.post('/run', function(req, res) {
 
 
                     function puts(error, stdout, stderr) {
-                        var newStdout = stdout.split('<<RESULT>>');
-                        // sys.puts(stdout);
-                        //remove folder
+			var result = null;
+			var newStdout = [stdout];
+			if(typeof stdout !== 'undefined'){	
+                        	result = util.parseResultRunMethod(stdout);
+				if (result){	
+                        		newStdout = stdout.split('<<RESULT>>');
+				}
+			}
                         res.json({
-                            result: util.parseResultRunMethod(stdout),
+                            result: result,
                             stdout: newStdout[0],
                             stderr: stderr,
                             error: error
                         });
                     };
-                    var execString = 'sudo docker run -v /home/ec2-user/runAPI/programs:/data/ dockerfile/java /bin/bash execJava.sh ' + folder;
+                    var execString = 'sudo docker run -v /home/ec2-user/runAPI/programs:/data/ java /bin/bash /data/execJava.sh ' + folder;
                     exec(execString, puts);
                     //run docker
                     //return object

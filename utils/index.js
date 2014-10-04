@@ -20,7 +20,11 @@ module.exports = {
         return (S4() + S4() + "_" + S4() + "_" + S4() + "_" + S4() + "_" + S4() + S4() + S4());
     },
     parseResultRunMethod: function(stdout) {
-        var resultArray = stdout.split('<<RESULT>>')[1].split(':');
+	var splittedStdout = stdout.split('<<RESULT>>');
+	if (splittedStdout.length === 1){
+		return null;
+	}
+        var resultArray = splittedStdout[1].split(':');
         return {
             numberOfTests: resultArray[0],
             testsPassed: resultArray[1],
